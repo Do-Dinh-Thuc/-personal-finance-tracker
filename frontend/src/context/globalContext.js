@@ -1,7 +1,9 @@
 import React, { useContext, useState } from "react"
 import axios from 'axios'
 
+
 const BASE_URL = "http://localhost:5000/api/v1/";
+
 
 const GlobalContext = React.createContext()
 
@@ -40,7 +42,8 @@ export const GlobalProvider = ({children}) => {
         return totalIncome;
     }
 
-    //calculate expenses
+
+    //calculate incomes
     const addExpense = async (income) => {
         const response = await axios.post(`${BASE_URL}add-expense`, income)
             .catch((err) =>{
@@ -69,6 +72,7 @@ export const GlobalProvider = ({children}) => {
         return totalIncome;
     }
 
+
     const totalBalance = () => {
         return totalIncome() - totalExpenses()
     }
@@ -81,6 +85,7 @@ export const GlobalProvider = ({children}) => {
 
         return history.slice(0, 3)
     }
+
 
     return (
         <GlobalContext.Provider value={{
