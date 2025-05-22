@@ -60,6 +60,7 @@ function Chart() {
         ]
     }
 
+
     return (
         <ChartStyled >
             <Line data={data} />

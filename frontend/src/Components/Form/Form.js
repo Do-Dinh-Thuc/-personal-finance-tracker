@@ -6,6 +6,7 @@ import { useGlobalContext } from '../../context/globalContext';
 import Button from '../Button/Button';
 import { plus } from '../../utils/Icons';
 
+
 function Form() {
     const {addIncome, getIncomes, error, setError} = useGlobalContext()
     const [inputState, setInputState] = useState({
@@ -96,6 +97,7 @@ function Form() {
     )
 }
 
+
 const FormStyled = styled.form`
     display: flex;
     flex-direction: column;
@@ -106,7 +108,6 @@ const FormStyled = styled.form`
         outline: none;
         border: none;
         padding: .5rem 1rem;
-        border-radius:
         border-radius: 5px;
         border: 2px solid #fff;
         background: transparent;
