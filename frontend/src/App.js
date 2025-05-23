@@ -7,13 +7,12 @@ import Navigation from './Components/Navigation/Navigation'
 import Dashboard from './Components/Dashboard/Dashboard';
 import Income from './Components/Income/Income'
 import Expenses from './Components/Expenses/Expenses';
+import UserProfile from './Components/Profile/UserProfile';
+import ProtectedRoute from './Components/ProtectedRoute/ProtectedRoute';
 import { useGlobalContext } from './context/globalContext';
 
 function App() {
   const [active, setActive] = useState(1)
-
-  const global = useGlobalContext()
-  console.log(global);
 
   const displayData = () => {
     switch(active){
@@ -25,6 +24,8 @@ function App() {
         return <Income />
       case 4: 
         return <Expenses />
+      case 5:
+        return <UserProfile />
       default: 
         return <Dashboard />
     }
@@ -37,12 +38,14 @@ function App() {
   return (
     <AppStyled bg={bg} className="App">
       {orbMemo}
-      <MainLayout>
-        <Navigation active={active} setActive={setActive} />
-        <main>
-          {displayData()}
-        </main>
-      </MainLayout>
+      <ProtectedRoute>
+        <MainLayout>
+          <Navigation active={active} setActive={setActive} />
+          <main>
+            {displayData()}
+          </main>
+        </MainLayout>
+      </ProtectedRoute>
     </AppStyled>
   );
 }

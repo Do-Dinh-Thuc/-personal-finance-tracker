@@ -13,6 +13,7 @@ app.use(express.json())
 app.use(cors())
 
 //routes
+app.use('/api/v1/auth', require('./routes/auth')) // Add auth routes
 readdirSync('./routes').map((route) => app.use('/api/v1', require('./routes/' + route)))
 
 const server = () => {

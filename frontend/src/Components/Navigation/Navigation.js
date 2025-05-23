@@ -1,17 +1,25 @@
-import React, { useState } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 import avatar from '../../img/avatar.png'
 import { signout } from '../../utils/Icons'
 import { menuItems } from '../../utils/menuItems'
+import { useGlobalContext } from '../../context/globalContext'
 
 function Navigation({active, setActive}) {
+    const { user, logout } = useGlobalContext();
+
+    const handleLogout = () => {
+        if (logout) {
+            logout();
+        }
+    };
     
     return (
         <NavStyled>
             <div className="user-con">
                 <img src={avatar} alt="" />
                 <div className="text">
-                    <h2>Mike</h2>
+                    <h2>{user?.name || 'User'}</h2>
                     <p>Your Money</p>
                 </div>
             </div>
@@ -28,7 +36,7 @@ function Navigation({active, setActive}) {
                 })}
             </ul>
             <div className="bottom-nav">
-                <li>
+                <li onClick={handleLogout}>
                     {signout} Sign Out
                 </li>
             </div>
@@ -110,6 +118,31 @@ const NavStyled = styled.nav`
             border-radius: 0 10px 10px 0;
         }
     }
+
+    .bottom-nav {
+        li {
+            display: grid;
+            grid-template-columns: 40px auto;
+            align-items: center;
+            margin: .6rem 0;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all .4s ease-in-out;
+            color: rgba(34, 34, 96, .6);
+            padding-left: 1rem;
+            position: relative;
+
+            &:hover {
+                color: rgba(34, 34, 96, 1);
+            }
+
+            i{
+                color: rgba(34, 34, 96, 0.6);
+                font-size: 1.4rem;
+                transition: all .4s ease-in-out;
+            }
+        }
+    }
 `;
 
-export default Navigation
+export default Navigation;
