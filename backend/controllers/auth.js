@@ -1,53 +1,60 @@
 const User = require('../models/UserModel');
 const jwt = require('jsonwebtoken');
 
-// Generate JWT Token
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRES_IN || '7d'
     });
 };
 
-// Register User
 exports.register = async (req, res) => {
     try {
+        console.log('🔵 Registration attempt:', req.body); // ADD THIS LINE
+        
         const { name, email, password, confirmPassword } = req.body;
 
         // Validation
         if (!name || !email || !password || !confirmPassword) {
+            console.log('❌ Missing fields validation failed'); // ADD THIS LINE
             return res.status(400).json({
                 message: 'All fields are required!'
             });
         }
 
         if (password !== confirmPassword) {
+            console.log('❌ Password mismatch'); // ADD THIS LINE
             return res.status(400).json({
                 message: 'Passwords do not match!'
             });
         }
 
         if (password.length < 6) {
+            console.log('❌ Password too short'); // ADD THIS LINE
             return res.status(400).json({
                 message: 'Password must be at least 6 characters!'
             });
         }
 
-        // Check if user exists
+        // Check existing user
+        console.log('🔍 Checking if user exists with email:', email); // ADD THIS LINE
         const existingUser = await User.findOne({ email });
         if (existingUser) {
+            console.log('❌ User already exists'); // ADD THIS LINE
             return res.status(400).json({
                 message: 'User already exists with this email!'
             });
         }
 
         // Create user
+        console.log('🔄 Creating new user...'); // ADD THIS LINE
         const user = await User.create({
             name,
             email,
             password
         });
 
-        // Generate token
+        console.log('✅ User created successfully:', user._id); // ADD THIS LINE
+
         const token = generateToken(user._id);
 
         res.status(201).json({
@@ -62,24 +69,21 @@ exports.register = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server Error' });
+        console.error('💥 Registration Error:', error); // ADD THIS LINE
+        res.status(500).json({ message: 'Server Error: ' + error.message }); // IMPROVED ERROR
     }
 };
 
-// Login User
 exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Validation
         if (!email || !password) {
             return res.status(400).json({
                 message: 'Email and password are required!'
             });
         }
 
-        // Check if user exists
         const user = await User.findOne({ email }).select('+password');
         if (!user) {
             return res.status(401).json({
@@ -87,7 +91,6 @@ exports.login = async (req, res) => {
             });
         }
 
-        // Check password
         const isPasswordCorrect = await user.comparePassword(password);
         if (!isPasswordCorrect) {
             return res.status(401).json({
@@ -95,7 +98,6 @@ exports.login = async (req, res) => {
             });
         }
 
-        // Generate token
         const token = generateToken(user._id);
 
         res.status(200).json({
@@ -115,7 +117,6 @@ exports.login = async (req, res) => {
     }
 };
 
-// Get Current User
 exports.getMe = async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
@@ -124,7 +125,8 @@ exports.getMe = async (req, res) => {
                 id: user._id,
                 name: user.name,
                 email: user.email,
-                avatar: user.avatar
+                avatar: user.avatar,
+                createdAt: user.createdAt
             }
         });
     } catch (error) {
@@ -132,13 +134,11 @@ exports.getMe = async (req, res) => {
     }
 };
 
-// Update Profile
 exports.updateProfile = async (req, res) => {
     try {
         const { name, email } = req.body;
         const userId = req.user.id;
 
-        // Check if email is already taken by another user
         if (email) {
             const existingUser = await User.findOne({ 
                 email, 
