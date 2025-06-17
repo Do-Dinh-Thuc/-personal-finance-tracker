@@ -1,240 +1,71 @@
-
-
+```bash
 # ==========================================
-# BACKEND (Node.js / Express)
+# ENVIRONMENT & SECURITY
 # ==========================================
-
-# Dependencies
-backend/node_modules/
-backend/npm-debug.log*
-backend/yarn-debug.log*
-backend/yarn-error.log*
-
-# Environment Variables (CRITICAL - Never commit!)
-backend/.env
-backend/.env.local
-backend/.env.development.local
-backend/.env.test.local
-backend/.env.production.local
-
-# Logs
-backend/logs/
-backend/*.log
-backend/npm-debug.log*
-backend/yarn-debug.log*
-backend/yarn-error.log*
-backend/lerna-debug.log*
-
-# Runtime data
-backend/pids/
-backend/*.pid
-backend/*.seed
-backend/*.pid.lock
-
-# Coverage directory used by tools like istanbul
-backend/coverage/
-backend/.nyc_output/
-
-# Grunt intermediate storage
-backend/.grunt/
-
-# Bower dependency directory
-backend/bower_components/
-
-# Optional npm cache directory
-backend/.npm/
-
-# Optional eslint cache
-backend/.eslintcache
-
-# Microbundle cache
-backend/.rpt2_cache/
-backend/.rts2_cache_cjs/
-backend/.rts2_cache_es/
-backend/.rts2_cache_umd/
-
-# Optional REPL history
-backend/.node_repl_history
-
-# Output of 'npm pack'
-backend/*.tgz
-
-# Yarn Integrity file
-backend/.yarn-integrity
-
-# dotenv environment variables file
-backend/.env
-backend/.env.test
-
-# parcel-bundler cache
-backend/.cache/
-backend/.parcel-cache/
-
-# Next.js build output
-backend/.next/
-
-# Nuxt.js build / generate output
-backend/.nuxt/
-backend/dist/
-
-# Gatsby files
-backend/.cache/
-backend/public/
-
-# Storybook build outputs
-backend/.out/
-backend/.storybook-out/
-
-# Temporary folders
-backend/tmp/
-backend/temp/
-
-# ==========================================
-# FRONTEND (React)
-# ==========================================
-
-# Dependencies
-frontend/node_modules/
-frontend/.pnp/
-frontend/.pnp.js
-
-# Testing
-frontend/coverage/
-
-# Production build
-frontend/build/
-frontend/dist/
-
-# Environment variables
-frontend/.env
-frontend/.env.local
-frontend/.env.development.local
-frontend/.env.test.local
-frontend/.env.production.local
-
-# Logs
-frontend/npm-debug.log*
-frontend/yarn-debug.log*
-frontend/yarn-error.log*
-
-# Editor directories and files
-frontend/.vscode/
-frontend/.idea/
-frontend/*.swp
-frontend/*.swo
-frontend/*~
-
-# OS generated files
-frontend/.DS_Store
-frontend/.DS_Store?
-frontend/._*
-frontend/.Spotlight-V100
-frontend/.Trashes
-frontend/ehthumbs.db
-frontend/Thumbs.db
-
-# ESLint cache
-frontend/.eslintcache
-
-# Stylelint cache
-frontend/.stylelintcache
-
-# Microbundle cache
-frontend/.rpt2_cache/
-frontend/.rts2_cache_cjs/
-frontend/.rts2_cache_es/
-frontend/.rts2_cache_umd/
-
-# Optional REPL history
-frontend/.node_repl_history
-
-# Output of 'npm pack'
-frontend/*.tgz
-
-# Yarn Integrity file
-frontend/.yarn-integrity
-
-# parcel-bundler cache
-frontend/.cache/
-frontend/.parcel-cache/
-
-# ==========================================
-# GENERAL / ROOT LEVEL
-# ==========================================
-
-# Environment files (CRITICAL!)
+# CRITICAL: Environment files with secrets
 .env
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.development
+.env.test
+.env.production
 
-# Dependencies
+# API Keys and Secrets
+*.pem
+*.key
+*.p12
+secrets.json
+config/secrets.*
+
+# ==========================================
+# DEPENDENCIES
+# ==========================================
 node_modules/
+*/node_modules/
+.pnp
+.pnp.js
+
+# ==========================================
+# LOGS
+# ==========================================
+*.log
+logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+lerna-debug.log*
 
-# Logs
-*.log
-logs/
+# ==========================================
+# BUILD & CACHE
+# ==========================================
+build/
+dist/
+out/
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
 
-# Runtime data
-pids/
-*.pid
-*.seed
-*.pid.lock
-
-# Coverage directory used by tools like istanbul
+# ==========================================
+# TESTING
+# ==========================================
 coverage/
 .nyc_output/
-
-# Grunt intermediate storage
-.grunt
-
-# Bower dependency directory
-bower_components
-
-# Optional npm cache directory
-.npm
-
-# Optional eslint cache
-.eslintcache
-
-# Microbundle cache
-.rpt2_cache/
-.rts2_cache_cjs/
-.rts2_cache_es/
-.rts2_cache_umd/
-
-# Optional REPL history
-.node_repl_history
-
-# Output of 'npm pack'
-*.tgz
-
-# Yarn Integrity file
-.yarn-integrity
-
-# parcel-bundler cache
-.cache
-.parcel-cache
+.coverage
+*.lcov
 
 # ==========================================
-# OPERATING SYSTEM FILES
+# OPERATING SYSTEM
 # ==========================================
-
 # macOS
 .DS_Store
 .DS_Store?
 ._*
 .Spotlight-V100
 .Trashes
-Icon?
 
-# Windows
-ehthumbs.db
+# Windows  
 Thumbs.db
+ehthumbs.db
 Desktop.ini
 
 # Linux
@@ -242,174 +73,29 @@ Desktop.ini
 .directory
 
 # ==========================================
-# EDITOR / IDE FILES
+# EDITORS & IDEs
 # ==========================================
-
-# Visual Studio Code
 .vscode/
-*.code-workspace
-
-# JetBrains IDEs
 .idea/
-*.iml
-*.iws
-
-# Sublime Text
-*.sublime-project
-*.sublime-workspace
-
-# Atom
-.atom/
-
-# Vim
 *.swp
 *.swo
-*~
-
-# Emacs
-*~
-\#*\#
-/.emacs.desktop
-/.emacs.desktop.lock
-*.elc
-auto-save-list
-tramp
-.\#*
-
-# NetBeans
-nbproject/private/
-build/
-nbbuild/
-dist/
-nbdist/
-.nb-gradle/
+*.sublime-*
 
 # ==========================================
-# SECURITY & SENSITIVE DATA
+# PROJECT SPECIFIC
 # ==========================================
-
-# API Keys and Secrets (CRITICAL!)
-*.pem
-*.key
-*.p12
-*.pfx
-secrets.json
-config/secrets.*
-
 # Database files
 *.sqlite
-*.sqlite3
 *.db
-*.mdb
-*.accdb
 
-# Backup files
-*.bak
-*.backup
-*.old
-*.orig
-
-# ==========================================
-# BUILD & DEPLOYMENT
-# ==========================================
-
-# Build directories
-build/
-dist/
-out/
-target/
-
-# Temporary files
+# Uploads
+uploads/
 tmp/
 temp/
-.tmp/
-
-# Cache directories
-.cache/
-.parcel-cache/
-
-# Static file directories (if generated)
-static/generated/
-public/generated/
 
 # ==========================================
-# TESTING
+# END
 # ==========================================
+```
 
-# Test coverage
-coverage/
-.coverage
-htmlcov/
-.tox/
-.pytest_cache/
-
-# Test results
-test-results/
-junit.xml
-
-# ==========================================
-# DOCUMENTATION
-# ==========================================
-
-# Generated documentation
-docs/_build/
-docs/build/
-site/
-
-# ==========================================
-# MISCELLANEOUS
-# ==========================================
-
-# Zip files
-*.zip
-*.tar.gz
-*.rar
-
-# Lock files (optional - some prefer to commit these)
-# package-lock.json
-# yarn.lock
-
-# Local development files
-.local
-.venv
-venv/
-
-# Jupyter Notebook checkpoints
-.ipynb_checkpoints/
-
-# pyenv
-.python-version
-
-# Serverless directories
-.serverless/
-
-# ==========================================
-# PROJECT-SPECIFIC IGNORES
-# ==========================================
-
-# Upload directories (if you have file uploads)
-uploads/
-files/
-media/
-
-# Generated reports
-reports/
-screenshots/
-
-# Local configuration overrides
-config/local.*
-config/development.*
-config/production.*
-
-# Database migrations (if using file-based migrations)
-# migrations/
-# seeds/
-
-# SSL certificates
-*.crt
-*.cert
-*.ca-bundle
-
-# ==========================================
-# END OF .GITIGNORE
-# ==========================================
+---
