@@ -1,20 +1,12 @@
 const express = require('express')
 const cors = require('cors');
 const { db } = require('./db/db');
-const { readdirSync } = require('fs')
-const config = require('./config/config'); // Add this
-
+const {readdirSync} = require('fs')
 const app = express()
 
-//require('dotenv').config()
+require('dotenv').config()
 
-// Validate environment configuration
-if (!config.validate()) {
-    console.error('❌ Environment configuration invalid. Exiting...');
-    process.exit(1);
-}
-
-const PORT = config.PORT; 
+const PORT = process.env.PORT
 
 //middlewares
 app.use(express.json())

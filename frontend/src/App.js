@@ -12,7 +12,6 @@ import { AuthProvider } from './context/authContext';
 import ProtectedRoute from './Components/ProtectedRoute';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import Transactions from './Components/Transaction/Transactions';
-import config from './config/config';
 
 function App() {
   const [active, setActive] = useState(1)
@@ -37,7 +36,7 @@ function App() {
   },[])
 
   return (
-    <GoogleOAuthProvider clientId={config.GOOGLE_CLIENT_ID}>
+    <GoogleOAuthProvider clientId="767774719514-drp750klap3rsvub9ht01amikblv4kua.apps.googleusercontent.com">
       <AuthProvider>
         <AppStyled bg={bg} className="App">
           {orbMemo}

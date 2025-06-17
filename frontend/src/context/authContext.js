@@ -1,9 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import { googleLogout } from '@react-oauth/google';
-import config from '../config/config';
 
-const BASE_URL = config.API_URL + '/'; 
+const BASE_URL = "http://localhost:5000/api/v1/";
 
 const AuthContext = createContext();
 

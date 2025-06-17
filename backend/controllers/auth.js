@@ -3,13 +3,12 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { OAuth2Client } = require('google-auth-library');
 const { sendResetPasswordEmail } = require('../services/emailService');
-const config = require('../config/config');
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Generate JWT Token
 const generateToken = (userId) => {
-    return jwt.sign({ userId }, config.JWT_SECRET, { expiresIn: '7d' }); 
+    return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '7d' });
 };
 
 // Traditional Login
