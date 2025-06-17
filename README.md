@@ -2,6 +2,8 @@
 
 A modern, full-stack expense tracking application built with React, Node.js, and MongoDB. Features Google OAuth authentication, real-time data visualization, and comprehensive financial management tools.
 
+This project helps you manage your income and expenses more easily.
+
 ## ✨ Features
 
 ### 🔐 Authentication
@@ -155,34 +157,9 @@ npm start
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👨‍💻 Author
-
-**Your Name**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- Email: your.email@example.com
-
 ## 🙏 Acknowledgments
 
 - Google OAuth for authentication
 - Chart.js for data visualization
 - MongoDB Atlas for database hosting
 - React community for excellent documentation
-
-## 📸 Screenshots
-
-### Login Page
-![Login Page](screenshots/login.png)
-
-### Dashboard
-![Dashboard](screenshots/dashboard.png)
-
-### Transaction Management
-![Transactions](screenshots/transactions.png)
-
----
-
-⭐ If you found this project helpful, please give it a star!
