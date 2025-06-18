@@ -6,7 +6,18 @@ const GoogleLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // Google OAuth configuration
-  const GOOGLE_CLIENT_ID = "767774719514-drp750klap3rsvub9ht01amikblv4kua.apps.googleusercontent.com";
+  const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+
+    if (!GOOGLE_CLIENT_ID) {
+        return (
+            // eslint-disable-next-line react/jsx-no-undef
+            <ErrorCard>
+                <h1>⚠️ Configuration Error</h1>
+                <p>Google Client ID is not configured.</p>
+                <p>Please add REACT_APP_GOOGLE_CLIENT_ID to your .env file</p>
+            </ErrorCard>
+        );
+    }
 
   useEffect(() => {
     // Load Google OAuth script
