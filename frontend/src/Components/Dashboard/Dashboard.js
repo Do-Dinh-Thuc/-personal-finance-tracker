@@ -207,14 +207,16 @@ const MainStatsRow = styled.div`
     gap: 2rem;
     margin-bottom: 3rem;
 
-    @media (max-width: 1200px) {
+    @media (max-width: 1400px) {
         grid-template-columns: repeat(2, 1fr);
         gap: 1.5rem;
+        margin-bottom: 2rem;
     }
 
     @media (max-width: 768px) {
         grid-template-columns: 1fr;
         gap: 1rem;
+        margin-bottom: 1.5rem;
     }
 `;
 
@@ -343,10 +345,20 @@ const ContentRow = styled.div`
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 2rem;
+    min-height: 500px;
 
-    @media (max-width: 1024px) {
+    @media (max-width: 1400px) {
+        grid-template-columns: 1.5fr 1fr;
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 1200px) {
         grid-template-columns: 1fr;
         gap: 2rem;
+    }
+
+    @media (max-width: 768px) {
+        gap: 1rem;
     }
 `;
 
@@ -392,6 +404,11 @@ const Sidebar = styled.div`
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    min-width: 0; /* Allows content to shrink */
+    
+    @media (max-width: 1200px) {
+        order: 2; /* Puts sidebar after main content on smaller screens */
+    }
 `;
 
 const SidebarCard = styled.div`

@@ -1,11 +1,14 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Expense Tracker Backend API",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon app.js",
-    "dev": "nodemon app.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "setup": "node scripts/setup.js",
+    "test-email": "node testEmail.js",
+    "check-env": "node scripts/checkEnv.js"
   },
   "author": "",
   "license": "ISC",

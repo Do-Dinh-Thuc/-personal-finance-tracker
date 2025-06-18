@@ -1,7 +1,8 @@
 import React, { useContext, useState } from "react"
 import axios from 'axios'
+import config from '../config/config';
 
-const BASE_URL = "http://localhost:5000/api/v1/";
+const BASE_URL = config.API_BASE_URL;
 
 const GlobalContext = React.createContext()
 
@@ -20,39 +21,52 @@ export const GlobalProvider = ({children}) => {
         } : {};
     };
 
+    // Test API connection
+    const testConnection = async () => {
+        try {
+            const response = await axios.get(`${BASE_URL.replace('/api/v1', '')}/health`);
+            console.log('✅ API Connection successful:', response.data);
+            return true;
+        } catch (error) {
+            console.error('❌ API Connection failed:', error.message);
+            console.error('🔧 Make sure backend is running on:', BASE_URL);
+            return false;
+        }
+    };
+
     //calculate incomes
     const addIncome = async (income) => {
-    try {
-        console.log('🔍 Adding income with data:', income); // Debug what's sent
-        const response = await axios.post(`${BASE_URL}add-income`, income, getAuthHeaders());
-        console.log('✅ Add income success:', response.data);
-        getIncomes();
-        return { success: true };
-    } catch (err) {
-        console.error('❌ Add income failed:', err.response?.data); // Show exact error
-        console.error('❌ Full error:', err);
-        const message = err.response?.data?.message || 'Failed to add income';
-        setError(message);
-        return { success: false, error: message };
+        try {
+            console.log('🔍 Adding income with data:', income);
+            const response = await axios.post(`${BASE_URL}/add-income`, income, getAuthHeaders());
+            console.log('✅ Add income success:', response.data);
+            getIncomes();
+            return { success: true };
+        } catch (err) {
+            console.error('❌ Add income failed:', err.response?.data);
+            console.error('❌ Full error:', err);
+            const message = err.response?.data?.message || 'Failed to add income';
+            setError(message);
+            return { success: false, error: message };
+        }
     }
-}
 
     const getIncomes = async () => {
-    try {
-        console.log('🔍 Fetching incomes...'); 
-        const response = await axios.get(`${BASE_URL}get-incomes`, getAuthHeaders());
-        console.log('✅ Incomes response:', response.data);
-        setIncomes(response.data);
-    } catch (error) {
-        console.error('❌ Failed to fetch incomes:', error); 
-        console.error('❌ Error details:', error.response);
-        setError('Failed to fetch incomes');
+        try {
+            console.log('🔍 Fetching incomes...');
+            const response = await axios.get(`${BASE_URL}/get-incomes`, getAuthHeaders());
+            console.log('✅ Incomes response:', response.data);
+            setIncomes(response.data);
+        } catch (error) {
+            console.error('❌ Failed to fetch incomes:', error);
+            console.error('❌ Error details:', error.response);
+            setError('Failed to fetch incomes');
+        }
     }
-}
 
     const deleteIncome = async (id) => {
         try {
-            await axios.delete(`${BASE_URL}delete-income/${id}`, getAuthHeaders());
+            await axios.delete(`${BASE_URL}/delete-income/${id}`, getAuthHeaders());
             getIncomes();
         } catch (error) {
             console.error('Failed to delete income:', error);
@@ -71,7 +85,7 @@ export const GlobalProvider = ({children}) => {
     //calculate expenses
     const addExpense = async (expense) => {
         try {
-            const response = await axios.post(`${BASE_URL}add-expense`, expense, getAuthHeaders());
+            const response = await axios.post(`${BASE_URL}/add-expense`, expense, getAuthHeaders());
             getExpenses();
             return { success: true };
         } catch (err) {
@@ -83,7 +97,7 @@ export const GlobalProvider = ({children}) => {
 
     const getExpenses = async () => {
         try {
-            const response = await axios.get(`${BASE_URL}get-expenses`, getAuthHeaders());
+            const response = await axios.get(`${BASE_URL}/get-expenses`, getAuthHeaders());
             setExpenses(response.data);
         } catch (error) {
             console.error('Failed to fetch expenses:', error);
@@ -93,7 +107,7 @@ export const GlobalProvider = ({children}) => {
 
     const deleteExpense = async (id) => {
         try {
-            await axios.delete(`${BASE_URL}delete-expense/${id}`, getAuthHeaders());
+            await axios.delete(`${BASE_URL}/delete-expense/${id}`, getAuthHeaders());
             getExpenses();
         } catch (error) {
             console.error('Failed to delete expense:', error);
@@ -136,7 +150,8 @@ export const GlobalProvider = ({children}) => {
             totalBalance,
             transactionHistory,
             error,
-            setError
+            setError,
+            testConnection
         }}>
             {children}
         </GlobalContext.Provider>

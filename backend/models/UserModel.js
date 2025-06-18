@@ -48,19 +48,37 @@ const UserSchema = new mongoose.Schema({
     resetPasswordExpires: {
         type: Date
     }
-}, {timestamps: true});
+}, {
+    timestamps: true, // ✅ This automatically adds createdAt and updatedAt
+    toJSON: { 
+        transform: function(doc, ret) {
+            // ✅ Ensure createdAt is always present
+            if (!ret.createdAt && ret._id) {
+                ret.createdAt = ret._id.getTimestamp();
+            }
+            return ret;
+        }
+    }
+});
 
-// Hash password before saving
-UserSchema.pre('save', async function(next) {
+// ✅ Add pre-save middleware to ensure createdAt exists
+UserSchema.pre('save', function(next) {
+    // Set createdAt if it doesn't exist (for legacy users)
+    if (!this.createdAt) {
+        this.createdAt = this._id ? this._id.getTimestamp() : new Date();
+    }
+    
+    // Hash password if modified
     if (!this.isModified('password') || !this.password) return next();
     
-    try {
-        const salt = await bcrypt.genSalt(10);
-        this.password = await bcrypt.hash(this.password, salt);
-        next();
-    } catch (error) {
-        next(error);
-    }
+    bcrypt.genSalt(10, (err, salt) => {
+        if (err) return next(err);
+        bcrypt.hash(this.password, salt, (err, hash) => {
+            if (err) return next(err);
+            this.password = hash;
+            next();
+        });
+    });
 });
 
 // Compare password method

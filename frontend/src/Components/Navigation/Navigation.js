@@ -5,11 +5,17 @@ import { signout } from '../../utils/Icons'
 import { menuItems } from '../../utils/menuItems'
 import { useAuth } from '../../context/authContext'
 import { useGlobalContext } from '../../context/globalContext'
+import EditProfile from '../Profile/EditProfile'
+import Settings from '../Profile/Settings'
+import ExportData from '../Profile/ExportData'
 
 function Navigation({active, setActive}) {
     const { user, logout } = useAuth();
     const { totalIncome, totalExpenses, totalBalance, incomes, expenses } = useGlobalContext();
     const [showProfile, setShowProfile] = useState(false);
+    const [showEditProfile, setShowEditProfile] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
+    const [showExportData, setShowExportData] = useState(false);
 
     const handleLogout = () => {
         if (window.confirm('Are you sure you want to sign out?')) {
@@ -25,12 +31,79 @@ function Navigation({active, setActive}) {
         setShowProfile(false);
     };
 
-    // Calculate user stats
+    // ✅ IMPROVED: Calculate user stats with better date handling
     const totalTransactions = incomes.length + expenses.length;
-    const joinDate = user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A';
-    const accountAge = user?.createdAt ? 
-        Math.floor((Date.now() - new Date(user.createdAt)) / (1000 * 60 * 60 * 24)) : 0;
     
+    // ✅ FIX: Better date handling for Member Since
+    const getMemberSinceDate = () => {
+        if (!user) return 'N/A';
+        
+        let memberDate = null;
+        
+        // Try different date sources
+        if (user.createdAt) {
+            memberDate = new Date(user.createdAt);
+        } else if (user._id && typeof user._id === 'string') {
+            // Extract date from MongoDB ObjectId (first 8 characters are timestamp)
+            try {
+                const timestamp = parseInt(user._id.substring(0, 8), 16) * 1000;
+                memberDate = new Date(timestamp);
+            } catch (e) {
+                console.log('Could not extract date from user ID');
+            }
+        }
+        
+        // Validate the date
+        if (memberDate && !isNaN(memberDate.getTime())) {
+            // Check if date is reasonable (not in future, not before 2020)
+            const now = new Date();
+            const minDate = new Date('2020-01-01');
+            
+            if (memberDate <= now && memberDate >= minDate) {
+                return memberDate.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+        }
+        
+        // Fallback: show "Recently joined" instead of N/A
+        return 'Recently joined';
+    };
+    
+    // ✅ FIX: Better account age calculation
+    const getAccountAge = () => {
+        if (!user) return 0;
+        
+        let memberDate = null;
+        
+        if (user.createdAt) {
+            memberDate = new Date(user.createdAt);
+        } else if (user._id && typeof user._id === 'string') {
+            try {
+                const timestamp = parseInt(user._id.substring(0, 8), 16) * 1000;
+                memberDate = new Date(timestamp);
+            } catch (e) {
+                return 0;
+            }
+        }
+        
+        if (memberDate && !isNaN(memberDate.getTime())) {
+            const now = new Date();
+            const diffTime = Math.abs(now - memberDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+        }
+        
+        return 0;
+    };
+    
+    const joinDate = getMemberSinceDate();
+    const accountAge = getAccountAge();
+    const balance = totalBalance();
+    const savingsRate = totalIncome() > 0 ? ((balance / totalIncome()) * 100).toFixed(1) : 0;
+
     return (
         <NavStyled>
             <div className="user-con">
@@ -74,8 +147,8 @@ function Navigation({active, setActive}) {
                                 </StatIcon>
                                 <StatInfo>
                                     <StatLabel>Total Balance</StatLabel>
-                                    <StatValue className={totalBalance() >= 0 ? 'positive' : 'negative'}>
-                                        ${Math.abs(totalBalance()).toLocaleString()}
+                                    <StatValue className={balance >= 0 ? 'positive' : 'negative'}>
+                                        ${Math.abs(balance).toLocaleString()}
                                     </StatValue>
                                 </StatInfo>
                             </StatItem>
@@ -102,15 +175,24 @@ function Navigation({active, setActive}) {
                         </ProfileStats>
 
                         <ProfileActions>
-                            <ActionButton className="edit">
+                            <ActionButton className="edit" onClick={() => {
+                                setShowEditProfile(true);
+                                closeProfile();
+                            }}>
                                 <i className="fa-solid fa-edit"></i>
                                 Edit Profile
                             </ActionButton>
-                            <ActionButton className="settings">
+                            <ActionButton className="settings" onClick={() => {
+                                setShowSettings(true);
+                                closeProfile();
+                            }}>
                                 <i className="fa-solid fa-cog"></i>
                                 Settings
                             </ActionButton>
-                            <ActionButton className="export">
+                            <ActionButton className="export" onClick={() => {
+                                setShowExportData(true);
+                                closeProfile();
+                            }}>
                                 <i className="fa-solid fa-download"></i>
                                 Export Data
                             </ActionButton>
@@ -127,7 +209,7 @@ function Navigation({active, setActive}) {
                                     <AchievementDesc>10+ Transactions</AchievementDesc>
                                 </Achievement>
 
-                                <Achievement className={totalBalance() > 1000 ? 'earned' : ''}>
+                                <Achievement className={balance > 1000 ? 'earned' : ''}>
                                     <AchievementIcon>
                                         <i className="fa-solid fa-trophy"></i>
                                     </AchievementIcon>
@@ -143,7 +225,7 @@ function Navigation({active, setActive}) {
                                     <AchievementDesc>30+ Days Active</AchievementDesc>
                                 </Achievement>
 
-                                <Achievement className={incomes.length + expenses.length >= 50 ? 'earned' : ''}>
+                                <Achievement className={totalTransactions >= 50 ? 'earned' : ''}>
                                     <AchievementIcon>
                                         <i className="fa-solid fa-gem"></i>
                                     </AchievementIcon>
@@ -178,11 +260,26 @@ function Navigation({active, setActive}) {
                     </li>
                 })}
             </ul>
+            
             <div className="bottom-nav">
                 <li onClick={handleLogout} style={{ cursor: 'pointer' }}>
                     {signout} Sign Out
                 </li>
             </div>
+
+            {/* Profile Feature Modals */}
+            <EditProfile 
+                isOpen={showEditProfile} 
+                onClose={() => setShowEditProfile(false)} 
+            />
+            <Settings 
+                isOpen={showSettings} 
+                onClose={() => setShowSettings(false)} 
+            />
+            <ExportData 
+                isOpen={showExportData} 
+                onClose={() => setShowExportData(false)} 
+            />
         </NavStyled>
     )
 }

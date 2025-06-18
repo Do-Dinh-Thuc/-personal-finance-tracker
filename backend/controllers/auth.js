@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { OAuth2Client } = require('google-auth-library');
 const { sendResetPasswordEmail } = require('../services/emailService');
+const IncomeSchema = require('../models/IncomeModel');
+const ExpenseSchema = require('../models/ExpenseModel');
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -131,20 +133,34 @@ exports.googleAuth = async (req, res) => {
                 user.googleId = googleId;
                 user.picture = picture || user.picture;
                 user.loginType = 'google';
+                // ✅ FIX: Ensure createdAt exists
+                if (!user.createdAt) {
+                    user.createdAt = new Date();
+                }
                 await user.save();
                 console.log('🔗 Linked Google account to existing user');
             } else {
-                // Create new user
+                // ✅ FIX: Create new user with explicit timestamps
                 user = new User({
                     name,
                     email,
                     googleId,
                     picture,
-                    loginType: 'google'
+                    loginType: 'google',
+                    createdAt: new Date(),  // Explicit creation date
+                    updatedAt: new Date()   // Explicit update date
                 });
                 await user.save();
                 console.log('👤 Created new Google user');
             }
+        } else {
+            // ✅ FIX: Update existing Google user and ensure createdAt exists
+            if (!user.createdAt) {
+                user.createdAt = new Date();
+            }
+            user.picture = picture || user.picture; // Update picture if available
+            user.updatedAt = new Date();
+            await user.save();
         }
 
         const authToken = generateToken(user._id);
@@ -157,7 +173,8 @@ exports.googleAuth = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 picture: user.picture,
-                loginType: user.loginType
+                loginType: user.loginType,
+                createdAt: user.createdAt // ✅ Include createdAt in response
             }
         });
 
@@ -305,5 +322,192 @@ exports.resetPassword = async (req, res) => {
     } catch (error) {
         console.error('❌ Reset password error:', error);
         res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// ✅ NEW: Update Profile Function
+exports.updateProfile = async (req, res) => {
+    try {
+        console.log('📝 Profile update request for user:', req.userId);
+        console.log('📝 Update data:', req.body);
+        
+        const { name, email, picture } = req.body;
+        const userId = req.userId;
+
+        // Validation
+        if (!name) {
+            return res.status(400).json({ message: 'Name is required' });
+        }
+
+        if (!email) {
+            return res.status(400).json({ message: 'Email is required' });
+        }
+
+        // Email format validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ message: 'Invalid email format' });
+        }
+
+        // Find current user
+        const currentUser = await User.findById(userId);
+        if (!currentUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if email is already taken by another user
+        if (email !== currentUser.email) {
+            const existingUser = await User.findOne({ 
+                email: email, 
+                _id: { $ne: userId } 
+            });
+            
+            if (existingUser) {
+                return res.status(400).json({ message: 'Email is already in use' });
+            }
+        }
+
+        // Prepare update data
+        const updateData = {
+            name: name.trim(),
+            email: email.toLowerCase().trim(),
+            updatedAt: new Date()
+        };
+
+        // Only update picture if provided
+        if (picture && picture !== currentUser.picture) {
+            updateData.picture = picture;
+        }
+
+        // Update user
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            updateData,
+            { new: true, runValidators: true }
+        ).select('-password');
+
+        console.log('✅ Profile updated successfully for:', updatedUser.email);
+
+        res.status(200).json({
+            message: 'Profile updated successfully',
+            user: {
+                id: updatedUser._id,
+                name: updatedUser.name,
+                email: updatedUser.email,
+                picture: updatedUser.picture,
+                loginType: updatedUser.loginType,
+                createdAt: updatedUser.createdAt,
+                updatedAt: updatedUser.updatedAt
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Profile update error:', error);
+        
+        // Handle validation errors
+        if (error.name === 'ValidationError') {
+            const messages = Object.values(error.errors).map(err => err.message);
+            return res.status(400).json({ message: messages.join(', ') });
+        }
+        
+        res.status(500).json({ message: 'Server error during profile update' });
+    }
+};
+
+// ✅ NEW: Change Password Function
+exports.changePassword = async (req, res) => {
+    try {
+        console.log('🔒 Password change request for user:', req.userId);
+        
+        const { currentPassword, newPassword } = req.body;
+        const userId = req.userId;
+
+        // Validation
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ message: 'Current password and new password are required' });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({ message: 'New password must be at least 6 characters' });
+        }
+
+        // Find user
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if user has a password (not Google-only user)
+        if (!user.password) {
+            return res.status(400).json({ 
+                message: 'Cannot change password for Google OAuth users' 
+            });
+        }
+
+        // Verify current password
+        const isCurrentPasswordValid = await user.comparePassword(currentPassword);
+        if (!isCurrentPasswordValid) {
+            return res.status(400).json({ message: 'Current password is incorrect' });
+        }
+
+        // Update password
+        user.password = newPassword;
+        user.updatedAt = new Date();
+        await user.save();
+
+        console.log('✅ Password changed successfully for:', user.email);
+
+        res.status(200).json({
+            message: 'Password changed successfully'
+        });
+
+    } catch (error) {
+        console.error('❌ Password change error:', error);
+        res.status(500).json({ message: 'Server error during password change' });
+    }
+};
+
+// ✅ NEW: Delete Account Function
+exports.deleteAccount = async (req, res) => {
+    try {
+        console.log('🗑️ Account deletion request for user:', req.userId);
+        
+        const { password } = req.body;
+        const userId = req.userId;
+
+        // Find user
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // For traditional users, verify password
+        if (user.loginType === 'traditional') {
+            if (!password) {
+                return res.status(400).json({ message: 'Password is required to delete account' });
+            }
+
+            const isPasswordValid = await user.comparePassword(password);
+            if (!isPasswordValid) {
+                return res.status(400).json({ message: 'Incorrect password' });
+            }
+        }
+
+        // Delete user's financial data first
+        await IncomeSchema.deleteMany({ userId });
+        await ExpenseSchema.deleteMany({ userId });
+
+        // Delete user account
+        await User.findByIdAndDelete(userId);
+
+        console.log('✅ Account deleted successfully for:', user.email);
+
+        res.status(200).json({
+            message: 'Account deleted successfully'
+        });
+
+    } catch (error) {
+        console.error('❌ Account deletion error:', error);
+        res.status(500).json({ message: 'Server error during account deletion' });
     }
 };
